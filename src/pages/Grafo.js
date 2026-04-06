@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+/* eslint-disable */
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function Grafo() {
   const containerRef = useRef(null);
   const navigate = useNavigate();
-  const [personas, setPersonas] = useState([]);
 
   useEffect(() => {
     cargarDatos();
@@ -14,7 +14,6 @@ function Grafo() {
   const cargarDatos = async () => {
     try {
       const res = await axios.get('https://sirce-production.up.railway.app/api/personas');
-      setPersonas(res.data);
       dibujarGrafo(res.data);
     } catch (error) {
       console.error(error);
@@ -44,32 +43,29 @@ function Grafo() {
     }));
 
     const enlaces = [
-      { from: 1, to: 3, label: 'manda a', color: { color: '#ef4444' } },
-      { from: 2, to: 4, label: 'manda a', color: { color: '#3b82f6' } },
-    ];
+      { from: data[0]?.id, to: data[2]?.id, label: 'manda a', color: { color: '#ef4444' } },
+      { from: data[1]?.id, to: data[3]?.id, label: 'manda a', color: { color: '#3b82f6' } },
+    ].filter(e => e.from && e.to);
 
     const Network = window.vis.Network;
-    const network = new Network(
+    new Network(
       containerRef.current,
       { nodes: nodos, edges: enlaces },
       {
-        physics: {
-          enabled: true,
-          stabilization: { iterations: 200 }
-        },
+        physics: { enabled: true, stabilization: { iterations: 200 } },
         edges: {
           arrows: 'to',
           font: { color: '#94a3b8', size: 11 },
           smooth: { type: 'curvedCW', roundness: 0.2 }
         },
-        interaction: {
-          hover: true,
-          zoomView: true,
-          dragNodes: true
-        },
-        background: '#0f172a'
+        interaction: { hover: true, zoomView: true, dragNodes: true }
       }
     );
+  };
+
+  const btnStyle = {
+    background: 'transparent', border: '1px solid #334155',
+    color: '#94a3b8', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer'
   };
 
   return (
@@ -89,14 +85,8 @@ function Grafo() {
           }}>CLASIFICADO</span>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={() => navigate('/dashboard')} style={{
-            background: 'transparent', border: '1px solid #334155',
-            color: '#94a3b8', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer'
-          }}>Dashboard</button>
-          <button onClick={() => navigate('/personas')} style={{
-            background: 'transparent', border: '1px solid #334155',
-            color: '#94a3b8', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer'
-          }}>Perfiles</button>
+          <button onClick={() => navigate('/dashboard')} style={btnStyle}>Dashboard</button>
+          <button onClick={() => navigate('/personas')} style={btnStyle}>Perfiles</button>
         </div>
       </nav>
 
@@ -105,7 +95,6 @@ function Grafo() {
         <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '20px' }}>
           Puedes mover los nodos, hacer zoom y explorar las conexiones
         </p>
-
         <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
           {[
             { color: '#ef4444', nombre: 'Los Lobos' },
@@ -117,20 +106,12 @@ function Grafo() {
               <span style={{ color: '#94a3b8', fontSize: '13px' }}>{b.nombre}</span>
             </div>
           ))}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '14px' }}>⭐</span>
-            <span style={{ color: '#94a3b8', fontSize: '13px' }}>Cabecilla alto riesgo</span>
-          </div>
         </div>
-
-        <div
-          ref={containerRef}
-          style={{
-            width: '100%', height: '600px',
-            background: '#1e293b', borderRadius: '12px',
-            border: '1px solid #334155'
-          }}
-        />
+        <div ref={containerRef} style={{
+          width: '100%', height: '600px',
+          background: '#1e293b', borderRadius: '12px',
+          border: '1px solid #334155'
+        }} />
       </div>
     </div>
   );
